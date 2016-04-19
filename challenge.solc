@@ -1,4 +1,4 @@
-contract KingOfH1 {
+contract CryptoHill {
     
   address owner;
   address leader;
@@ -9,7 +9,7 @@ contract KingOfH1 {
   
   event Update(string log);
     
-  function KingOfH1(){ 
+  function CryptoHill(){ 
     owner = msg.sender;
     leaderHash = sha256("09F911029D74E35BD84156C5635688C0");
     leader = msg.sender;
@@ -36,13 +36,13 @@ contract KingOfH1 {
         return challengeHash;
   }
   
-  function getLeader() constant returns (address currentLeader){
+  function currentLeader() constant returns (address CurrentLeaderAddress){
       return leader;
   }
-  function getDifficulty() constant returns (int currentDifficulty){
+  function Difficulty() constant returns (int currentDifficulty){
       return difficulty;
   }
-  function getLeaderHash() constant returns (bytes32 currentLeaderHash){
+  function LeaderHash() constant returns (bytes32 leadingHash){
       return leaderHash;
   }
 
@@ -53,4 +53,3 @@ contract KingOfH1 {
       }
   }
 }
-
