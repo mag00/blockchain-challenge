@@ -1,0 +1,56 @@
+contract KingOfH1 {
+    
+  address owner;
+  address leader;
+  bytes32 leaderHash;
+  uint8 difficulty;
+  uint8 attempts;
+  bytes32 lastAttempt;
+  
+  event Update(string log);
+    
+  function KingOfH1(){ 
+    owner = msg.sender;
+    leaderHash = sha256("09F911029D74E35BD84156C5635688C0");
+    leader = msg.sender;
+    difficulty = 1;
+    //Update("Game has begun.");
+  }
+  
+  function overthrow(string challengeData) returns (bytes32 hh){
+        var challengeHash = sha256(challengeData);
+        lastAttempt = challengeHash;
+        
+        if(challengeHash == leaderHash)
+            return leaderHash;
+        
+        for(uint i = 0; i < difficulty; i++) {
+            if(challengeHash[i] != leaderHash[i]) {
+                return leaderHash;
+            }
+        }
+        leader = msg.sender;
+        leaderHash = challengeHash;
+        attempts++;
+        difficulty++;
+        return challengeHash;
+  }
+  
+  function getLeader() constant returns (address currentLeader){
+      return leader;
+  }
+  function getDifficulty() constant returns (int currentDifficulty){
+      return difficulty;
+  }
+  function getLeaderHash() constant returns (bytes32 currentLeaderHash){
+      return leaderHash;
+  }
+
+  function kill(){
+      if (msg.sender == owner){
+        //Update("H1Coin Challenge Complete");
+        selfdestruct(owner);
+      }
+  }
+}
+
