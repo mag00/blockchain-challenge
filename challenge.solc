@@ -7,14 +7,17 @@ contract CryptoHill {
   uint8 attempts;
   bytes32 lastAttempt;
   
-  event Update(string log);
+  event Begin(string log);
+  event NewLeader(string log, address newLeader);
+  event GameOver(string log);
     
   function CryptoHill(){ 
     owner = msg.sender;
     leaderHash = sha256("09F911029D74E35BD84156C5635688C0");
     leader = msg.sender;
     difficulty = 1;
-    //Update("Game has begun.");
+    Begin("Overthrow the leader by colliding the most significant bytes.");
+    Begin("Any bounty in the balance given to new leader.");
   }
   
   function overthrow(string challengeData) returns (bytes32 hh){
@@ -33,6 +36,10 @@ contract CryptoHill {
         leaderHash = challengeHash;
         attempts++;
         difficulty++;
+        NewLeader("New leader!", leader);
+        
+        //"pay the man" https://www.youtube.com/watch?v=QqitTNF_I3g
+        leader.send(this.balance);
         return challengeHash;
   }
   
@@ -48,7 +55,7 @@ contract CryptoHill {
 
   function kill(){
       if (msg.sender == owner){
-        //Update("H1Coin Challenge Complete");
+        GameOver("The Crypto Hill has ended.");
         selfdestruct(owner);
       }
   }
