@@ -3,7 +3,7 @@ contract CryptoHill {
   address owner;
   address leader;
   bytes32 leaderHash;
-  uint8 difficulty;
+  bytes32 difficulty;
   uint8 attempts;
   
   event Begin(string log);
@@ -20,7 +20,8 @@ contract CryptoHill {
     leader = msg.sender;
 
     //Difficulty starts very easy
-    difficulty = 1;
+    //difficulty = 1;
+    difficulty = leaderHash;
 
     Begin("Overthrow the leader by colliding the most significant bytes.");
     Begin("Any bounty in the balance given to new leader.");
@@ -35,17 +36,22 @@ contract CryptoHill {
             return leaderHash;
         
         //Loop runs as long as collisions happen
-        for(uint i = 0; i < difficulty; i++) {
-            if(challengeHash[i] != leaderHash[i]) {
-                return leaderHash;
-            }
+        //for(uint i = 0; i < difficulty; i++) {
+        //    if(challengeHash[i] != leaderHash[i]) {
+        //        return leaderHash;
+        //    }
+        //}
+
+        //Other Method: Constantly reducing difficulty
+        if((challengeHash ^ leaderHash) > difficulty) {
+          return leaderHash;
         }
 
         //If we survive the loop, they met the difficulty level, and do "winning" things
         leader = msg.sender;
         leaderHash = challengeHash;
         attempts++;
-        difficulty++;
+        difficulty = (challengeHash ^ leaderHash);
         NewLeader("New leader!", leader);
         
         //"pay the man" https://www.youtube.com/watch?v=QqitTNF_I3g
@@ -58,7 +64,7 @@ contract CryptoHill {
   function currentLeader() constant returns (address CurrentLeaderAddress){
       return leader;
   }
-  function Difficulty() constant returns (int currentDifficulty){
+  function Difficulty() constant returns (bytes32 currentDifficulty){
       return difficulty;
   }
   function LeaderHash() constant returns (bytes32 leadingHash){
