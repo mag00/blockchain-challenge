@@ -64,8 +64,8 @@ contract CryptoHill {
   function currentLeader() constant returns (address CurrentLeaderAddress){
       return leader;
   }
-  function Difficulty() constant returns (bytes32 currentDifficulty){
-      return difficulty;
+  function Difficulty() constant returns (int currentDifficulty){
+      return int(difficulty);
   }
   function LeaderHash() constant returns (bytes32 leadingHash){
       return leaderHash;
