@@ -48,10 +48,10 @@ contract CryptoHill {
         }
 
         //If we survive the loop, they met the difficulty level, and do "winning" things
+        difficulty = (challengeHash ^ leaderHash);
         leader = msg.sender;
         leaderHash = challengeHash;
         attempts++;
-        difficulty = (challengeHash ^ leaderHash);
         NewLeader("New leader!", leader);
         
         //"pay the man" https://www.youtube.com/watch?v=QqitTNF_I3g
