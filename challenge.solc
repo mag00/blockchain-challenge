@@ -4,11 +4,12 @@ contract CryptoHill {
   address leader;
   bytes32 leaderHash;
   bytes32 difficulty;
-  uint8 attempts;
+  uint8 fallenLeaders;
   string leaderMessage;
   
   event Begin(string log);
   event NewLeader(string log, address newLeader);
+  event Message(string log);
   event GameOver(string log);
     
   function CryptoHill(){ 
@@ -21,14 +22,15 @@ contract CryptoHill {
     leader = msg.sender;
 
     //The placeholder leader message
-    leaderMessage = "If you can beat this difficulty, you can write a message here.";
+    leaderMessage = "If you have beaten this difficulty, you own this field. Write a message here.";
 
     //Difficulty starts very easy
     //difficulty = 1;
     difficulty = leaderHash;
+    fallenLeaders = 0;
 
-    Begin("Overthrow the leader by colliding the most significant bytes.");
-    Begin("Any bounty in contract balance given to new leader.");
+    Begin("Overthrow the leader by colliding significant bits than the current leader. Any bounty in contract balance given to new leader, and can change the message.");
+    
   }
   
   function overthrow(string challengeData) returns (bytes32 overthrownBytes){
@@ -46,18 +48,17 @@ contract CryptoHill {
         //    }
         //}
 
-        //Other Method: Constantly reducing difficulty
+        //Other Method: Constantly "reducing" difficulty
         if((challengeHash ^ leaderHash) > difficulty) {
           return leaderHash;
         }
 
-        //If we survive the loop, they met the difficulty level, and do "winning" things
+        //If they survived the checks, they met the difficulty level. Do "winning" things:
         difficulty = (challengeHash ^ leaderHash);
         leader = msg.sender;
         leaderHash = challengeHash;
-        attempts++;
         NewLeader("New leader!", leader);
-        
+        fallenLeaders++;
         //"pay the man" https://www.youtube.com/watch?v=QqitTNF_I3g
         leader.send(this.balance);
 
@@ -74,14 +75,23 @@ contract CryptoHill {
   function currentLeader() constant returns (address CurrentLeaderAddress){
       return leader;
   }
-  function Difficulty() constant returns (int currentDifficulty){
-      return int(difficulty);
+  function Difficulty() constant returns (uint32 RemainingCollisionBits){
+      return uint32(difficulty);
   }
   function LeaderHash() constant returns (bytes32 leadingHash){
       return leaderHash;
   }
-  function LeaderMessage() constant returns (string leaderMessage){
+  function LeaderMessage() constant returns (string LeaderMessage){
       return leaderMessage;
+  }
+  function FallenLeaders() constant returns (uint8 Victors){
+      return fallenLeaders;
+  }
+  
+  function adminAnnouncement(string adminMessage) {
+      if(msg.sender == owner){
+          Message(adminMessage);
+      }
   }
 
   //Will remove this before main net
