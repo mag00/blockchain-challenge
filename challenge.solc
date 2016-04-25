@@ -5,6 +5,7 @@ contract CryptoHill {
   bytes32 leaderHash;
   bytes32 difficulty;
   uint8 attempts;
+  string leaderMessage;
   
   event Begin(string log);
   event NewLeader(string log, address newLeader);
@@ -24,10 +25,10 @@ contract CryptoHill {
     difficulty = leaderHash;
 
     Begin("Overthrow the leader by colliding the most significant bytes.");
-    Begin("Any bounty in the balance given to new leader.");
+    Begin("Any bounty in contract balance given to new leader.");
   }
   
-  function overthrow(string challengeData) returns (bytes32 hh){
+  function overthrow(string challengeData) returns (bytes32 overthrownBytes){
         //Create hash from data sent to contract
         var challengeHash = sha256(challengeData);
         
@@ -60,6 +61,12 @@ contract CryptoHill {
         return challengeHash;
   }
   
+  function changeLeaderMessage(string newMessage){
+      if(msg.sender == leader)
+        leaderMessage = newMessage;
+  }
+  
+  
   //These functions announce the state of things in mist
   function currentLeader() constant returns (address CurrentLeaderAddress){
       return leader;
@@ -69,6 +76,9 @@ contract CryptoHill {
   }
   function LeaderHash() constant returns (bytes32 leadingHash){
       return leaderHash;
+  }
+  function LeaderMessage() constant returns (string leaderMessage){
+      return leaderMessage;
   }
 
   //Will remove this before main net
