@@ -20,6 +20,9 @@ contract CryptoHill {
     //First leader is the creator of the contract
     leader = msg.sender;
 
+    //The placeholder leader message
+    leaderMessage = "If you can beat this difficulty, you can write a message here."
+
     //Difficulty starts very easy
     //difficulty = 1;
     difficulty = leaderHash;
