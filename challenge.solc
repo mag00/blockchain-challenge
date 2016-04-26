@@ -27,7 +27,7 @@ contract CryptoHill {
     startingTime = block.timestamp;
     
     //Game Length
-    gameLength = 5 minutes;
+    gameLength = 10 minutes;
 
     //Initial seed for the first challenge. This should always be in rotation afterward.
     leaderHash = sha3("09F911029D74E35BD84156C5635688C0");
@@ -120,11 +120,12 @@ contract CryptoHill {
   
   function changeLeaderMessage(string newMessage){
         //The leader gets to talk all kinds of shit.
+        //TODO remove this?
         if(msg.sender == leader)
             leaderMessage = newMessage;
   }
   
-  //The following functions sort of designed for mist UI
+  //The following functions designed for mist UI
   function currentLeader() constant returns (address CurrentLeaderAddress){
       return leader;
   }
@@ -146,12 +147,11 @@ contract CryptoHill {
       return startingTime + gameLength;
   }
 
-  //TODO remove this before main net. Keeping testnet tidy
+  //TODO remove this before releasing main net. immortal code
   function kill(){
       if (msg.sender == admin){
         GameOver("The Crypto Hill has ended.");
         selfdestruct(admin);
       }
   }
-  
 }
