@@ -1,6 +1,6 @@
 contract CryptoHill {
     
-  address owner;
+  address admin;
   address leader;
   bytes32 leaderHash;
   bytes32 difficulty;
@@ -8,12 +8,12 @@ contract CryptoHill {
   string leaderMessage;
   
   event Begin(string log);
-  event NewLeader(string log, address newLeader);
+  event NewLeader(string log, address newLeader, bytes32 difficulty);
   event Message(string log);
   event GameOver(string log);
     
   function CryptoHill(){ 
-    owner = msg.sender;
+    admin = msg.sender;
 
     //Initial seed for the first challenge. https://en.wikipedia.org/wiki/AACS_encryption_key_controversy
     leaderHash = sha256("09F911029D74E35BD84156C5635688C0");
@@ -29,17 +29,28 @@ contract CryptoHill {
     difficulty = leaderHash;
     fallenLeaders = 0;
 
-    Begin("Overthrow the leader by colliding significant bits than the current leader. Any bounty in contract balance given to new leader, and can change the message.");
-    
+    Begin("Overthrow the leader by colliding more significant bits than the current leader. Any bounty in contract balance given to new leader, and can change the message.");
+
+  }
+
+  function debug() returns (bytes32 aa) {
+      
+      return sha256("5");
+      
   }
   
-  function overthrow(string challengeData) returns (bytes32 overthrownBytes){
+  function overthrow(string challengeData) returns (bool success){
+      
+        //Keeping mist UI clean
+        if(msg.sender == admin){
+          Message(challengeData);
+        }
         //Create hash from data sent to contract
         var challengeHash = sha256(challengeData);
         
         //Cheating - of course last hash will collide
         if(challengeHash == leaderHash)
-            return leaderHash;
+            return false;
         
         //Loop runs as long as collisions happen
         //for(uint i = 0; i < difficulty; i++) {
@@ -50,19 +61,19 @@ contract CryptoHill {
 
         //Other Method: Constantly "reducing" difficulty
         if((challengeHash ^ leaderHash) > difficulty) {
-          return leaderHash;
+          return false;
         }
 
         //If they survived the checks, they met the difficulty level. Do "winning" things:
         difficulty = (challengeHash ^ leaderHash);
         leader = msg.sender;
         leaderHash = challengeHash;
-        NewLeader("New leader!", leader);
+        NewLeader("New leader!", leader, difficulty);
         fallenLeaders++;
+        
         //"pay the man" https://www.youtube.com/watch?v=QqitTNF_I3g
         leader.send(this.balance);
-
-        return challengeHash;
+        return true;
   }
   
   function changeLeaderMessage(string newMessage){
@@ -70,35 +81,30 @@ contract CryptoHill {
         leaderMessage = newMessage;
   }
   
-  
   //These functions announce the state of things in mist
   function currentLeader() constant returns (address CurrentLeaderAddress){
       return leader;
   }
-  function Difficulty() constant returns (uint32 RemainingCollisionBits){
-      return uint32(difficulty);
+  
+  function Difficulty() constant returns (bytes32 TargetCollisionMask){
+      return difficulty;
   }
   function LeaderHash() constant returns (bytes32 leadingHash){
       return leaderHash;
   }
+  
   function LeaderMessage() constant returns (string LeaderMessage){
       return leaderMessage;
   }
   function FallenLeaders() constant returns (uint8 Victors){
       return fallenLeaders;
   }
-  
-  function adminAnnouncement(string adminMessage) {
-      if(msg.sender == owner){
-          Message(adminMessage);
-      }
-  }
 
-  //Will remove this before main net
+  //TODO remove this before main net
   function kill(){
-      if (msg.sender == owner){
+      if (msg.sender == admin){
         GameOver("The Crypto Hill has ended.");
-        selfdestruct(owner);
+        selfdestruct(admin);
       }
   }
 }
