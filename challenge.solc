@@ -6,16 +6,18 @@ contract CryptoHill {
   bytes32 difficulty;
   uint fallenLeaders;
   uint startingTime;
+  uint gameLength;
   string leaderMessage;
   string defaultLeaderMessage;
-  
+
   
   event Begin(string log);
-  event NewLeader(string log, address newLeader, bytes32 newHash);
+  event Leader(string log, address newLeader, bytes32 newHash);
   event Message(string log);
   event GameOver(string log);
   event Winner (string log, address winner);
-    
+  event NoWinner (string log);
+  
   function CryptoHill(){ 
       
     //Just in case
@@ -23,6 +25,9 @@ contract CryptoHill {
 
     //Starting Time
     startingTime = block.timestamp;
+    
+    //Game Length
+    gameLength = 5 minutes;
 
     //Initial seed for the first challenge. This should always be in rotation afterward.
     leaderHash = sha3("09F911029D74E35BD84156C5635688C0");
@@ -40,7 +45,7 @@ contract CryptoHill {
     //Counter for successful collisions this week.
     fallenLeaders = 0;
 
-    Begin("Overthrow the leader by colliding hashes with the leader. Leader can talk trash in the MOTD and wins any bounty at the end of the week.");
+    Begin("Collide the most bits of the leader's hash to replace the leader. Leader will win any bounty at the end of the week. Be sure to submit before someone else does...");
 
   }
   
@@ -60,15 +65,17 @@ contract CryptoHill {
       
       //Are we one week beyond the last game? TODO change time for mainnet
       //if (block.timestamp > (startingTime + 1 weeks)) {
-      if (block.timestamp > (startingTime + 5 minutes)) {
+      if (block.timestamp > (startingTime + gameLength)) {
           
-          //If so, log winner, start the clock over again and reset.
-          Winner("We have a new winner!", leader);
-          
-          //"pay the man" https://www.youtube.com/watch?v=QqitTNF_I3g
-          leader.send(this.balance);
-          
+          //If so, log winner. If the admin "wins", it's because no one else won.
+          if(leader != admin){
+            Winner("Victory! Game will be reset to end in 1 week (in block time).", leader);
+            leader.send(this.balance);
+          }else NoWinner("No winner! Game will be reset to end in 1 week (in block time).");
+
           startingTime = block.timestamp;
+
+          //Reset
           reset();
           return true;
       }
@@ -103,7 +110,7 @@ contract CryptoHill {
         leaderHash = challengeHash;
         
         //Announce our new victor. Congratulations!    
-        NewLeader("New leader! This is their address, and the new hash to collide.", leader, leaderHash);
+        Leader("New leader! This is their address, and the new hash to collide.", leader, leaderHash);
         
         //Keep track of how many new leaders we've had this week.
         fallenLeaders++;
@@ -134,6 +141,9 @@ contract CryptoHill {
   }
   function FallenLeaders() constant returns (uint Victors){
       return fallenLeaders;
+  }
+  function GameEnds() constant returns (uint EndingTime){
+      return startingTime + gameLength;
   }
 
   //TODO remove this before main net. Keeping testnet tidy
