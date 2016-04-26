@@ -36,7 +36,7 @@ contract CryptoHill {
     difficulty = leaderHash;
     fallenLeaders = 0;
 
-    Begin("Overthrow the leader by colliding hashes with the leader. Leader can talk trash in the MOTD and wins at the end of the week.");
+    Begin("Overthrow the leader by colliding hashes with the leader. Leader can talk trash in the MOTD and wins any bounty at the end of the week.");
 
   }
   
@@ -70,12 +70,6 @@ contract CryptoHill {
   }
 
   function overthrow(string challengeData) returns (bool success){
-      
-      
-        //Keeping mist UI clean - adding admin messages here
-        if(msg.sender == admin){
-          Message(challengeData);
-        }
         
         //Submission too late
         if(checkDate()){
