@@ -4,7 +4,7 @@ contract CryptoHill {
   address leader;
   bytes32 leaderHash;
   bytes32 difficulty;
-  uint8 fallenLeaders;
+  uint fallenLeaders;
   uint startingTime;
   string leaderMessage;
   string defaultLeaderMessage;
@@ -17,13 +17,15 @@ contract CryptoHill {
   event Winner (string log, address winner);
     
   function CryptoHill(){ 
+      
+    //Just in case
     admin = msg.sender;
 
     //Starting Time
     startingTime = block.timestamp;
 
-    //Initial seed for the first challenge. https://en.wikipedia.org/wiki/AACS_encryption_key_controversy
-    leaderHash = sha256("09F911029D74E35BD84156C5635688C0");
+    //Initial seed for the first challenge. This should always be in rotation afterward.
+    leaderHash = sha3("09F911029D74E35BD84156C5635688C0");
 
     //First leader is the creator of the contract
     leader = msg.sender;
@@ -31,9 +33,11 @@ contract CryptoHill {
     //The placeholder leader message
     defaultLeaderMessage = "If you're this weeks leader, you own this field. Write a message here.";
     leaderMessage = defaultLeaderMessage;
-    //Difficulty starts very easy
-    //difficulty = 1;
+    
+    //This difficulty starts as easy as possible. Any XOR will be less, to start.
     difficulty = leaderHash;
+    
+    //Counter for successful collisions this week.
     fallenLeaders = 0;
 
     Begin("Overthrow the leader by colliding hashes with the leader. Leader can talk trash in the MOTD and wins any bounty at the end of the week.");
@@ -42,7 +46,10 @@ contract CryptoHill {
   
   function reset() private{
       
-      leaderHash = sha256(block.timestamp);
+      //Make the hash a little bit unpredictable.
+      leaderHash = sha3(block.timestamp);
+      
+      //Reset the leader message
       leaderMessage = defaultLeaderMessage;
       difficulty = leaderHash;
       leader = admin;
@@ -66,51 +73,51 @@ contract CryptoHill {
           return true;
       }
       return false;
-    
   }
 
   function overthrow(string challengeData) returns (bool success){
         
-        //Submission too late
-        if(checkDate()){
+        //Create hash from player data sent to contract
+        var challengeHash = sha3(challengeData);
+
+        //Check One: Submission too late, reset game w/ new hash
+        if(checkDate())
             return false;
-        }
         
-        //Create hash from data sent to contract
-        var challengeHash = sha256(challengeData);
-        
-        //Cheating - of course last hash will collide
+        //Check Two: Cheating - of course last hash will collide!
         if(challengeHash == leaderHash)
             return false;
-        
-        //Loop runs as long as collisions happen
-        //for(uint i = 0; i < difficulty; i++) {
-        //    if(challengeHash[i] != leaderHash[i]) {
-        //        return leaderHash;
-        //    }
-        //}
 
-        //Other Method: Constantly "reducing" difficulty
-        if((challengeHash ^ leaderHash) > difficulty) {
+        //Check Three: Core gaming logic favoring collisions of MSB
+        if((challengeHash ^ leaderHash) > difficulty)
           return false;
-        }
 
-        //If they survived the checks, they met the difficulty level. Do "winning" things:
+        //If player survived the checks, they've overcome difficulty level and beat the leader.
+        //Update the difficulty. This makes the game progressively harder through the week.
         difficulty = (challengeHash ^ leaderHash);
+        
+        //We have a new Leader
         leader = msg.sender;
+        
+        //The winning hash is our new hash. This undoes any work being done by competition!
         leaderHash = challengeHash;
+        
+        //Announce our new victor. Congratulations!    
         NewLeader("New leader! This is their address, and the new hash to collide.", leader, leaderHash);
+        
+        //Keep track of how many new leaders we've had this week.
         fallenLeaders++;
         
         return true;
   }
   
   function changeLeaderMessage(string newMessage){
-      if(msg.sender == leader)
-        leaderMessage = newMessage;
+        //The leader gets to talk all kinds of shit.
+        if(msg.sender == leader)
+            leaderMessage = newMessage;
   }
   
-  //These functions announce the state of things in mist
+  //The following functions sort of designed for mist UI
   function currentLeader() constant returns (address CurrentLeaderAddress){
       return leader;
   }
@@ -125,15 +132,16 @@ contract CryptoHill {
   function LeaderMessage() constant returns (string MessageOfTheDay){
       return leaderMessage;
   }
-  function FallenLeaders() constant returns (uint8 Victors){
+  function FallenLeaders() constant returns (uint Victors){
       return fallenLeaders;
   }
 
-  //TODO remove this before main net
+  //TODO remove this before main net. Keeping testnet tidy
   function kill(){
       if (msg.sender == admin){
         GameOver("The Crypto Hill has ended.");
         selfdestruct(admin);
       }
   }
+  
 }
