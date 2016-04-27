@@ -4,6 +4,7 @@ contract CryptoHill {
   address leader;
   bytes32 leaderHash;
   bytes32 difficulty;
+  bytes32 difficultyWorldRecord;
   uint fallenLeaders;
   uint startingTime;
   uint gameLength;
@@ -17,6 +18,7 @@ contract CryptoHill {
   event GameOver(string log);
   event Winner (string log, address winner);
   event NoWinner (string log);
+  event WorldRecord (string log, bytes32 DifficultyRecord, address RecordHolder);
   
   function CryptoHill(){ 
       
@@ -31,6 +33,7 @@ contract CryptoHill {
 
     //Initial seed for the first challenge. This should always be in rotation afterward.
     leaderHash = sha3("09F911029D74E35BD84156C5635688C0");
+    
 
     //First leader is the creator of the contract
     leader = msg.sender;
@@ -41,6 +44,9 @@ contract CryptoHill {
     
     //This difficulty starts as easy as possible. Any XOR will be less, to start.
     difficulty = leaderHash;
+    
+    //Seed the world record
+    difficultyWorldRecord = leaderHash;
     
     //Counter for successful collisions this week.
     fallenLeaders = 0;
@@ -103,6 +109,9 @@ contract CryptoHill {
         //Update the difficulty. This makes the game progressively harder through the week.
         difficulty = (challengeHash ^ leaderHash);
         
+        //Did they set a record?
+        challengeWorldRecord(difficulty);
+        
         //We have a new Leader
         leader = msg.sender;
         
@@ -116,6 +125,13 @@ contract CryptoHill {
         fallenLeaders++;
         
         return true;
+  }
+  
+  function challengeWorldRecord (bytes32 difficultyChallenge) private {
+      if(difficultyChallenge < difficultyWorldRecord) {
+        difficultyWorldRecord = difficultyChallenge;
+        WorldRecord("A record setting collision occcured!", difficultyWorldRecord, msg.sender);
+      }
   }
   
   function changeLeaderMessage(string newMessage){
