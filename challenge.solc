@@ -20,14 +20,14 @@ contract CryptoHill {
   
   function CryptoHill(){ 
       
-    //Just in case
+    //Admin Backdoor
     admin = msg.sender;
 
     //Starting Time
     startingTime = block.timestamp;
     
-    //Game Length
-    gameLength = 10 minutes;
+    //Game Length (TODO: Change to 1 weeks)
+    gameLength = 1 weeks;
 
     //Initial seed for the first challenge. This should always be in rotation afterward.
     leaderHash = sha3("09F911029D74E35BD84156C5635688C0");
@@ -48,13 +48,13 @@ contract CryptoHill {
     //Counter for successful collisions this week.
     fallenLeaders = 0;
 
-    Begin("Collide the most bits of the leader's hash to replace the leader. Leader will win any bounty at the end of the week. Be sure to submit before someone else does...");
+    Begin("Collide the most bits of the leader's hash to replace the leader. Leader will win any bounty at the end of the week.");
 
   }
   
   function reset() private{
       
-      //Make the hash a little bit unpredictable.
+      //Make the hash unpredictable.
       leaderHash = sha3(block.timestamp);
       
       //Reset the leader message
@@ -67,7 +67,6 @@ contract CryptoHill {
   function checkDate() private returns (bool success) {
       
       //Are we one week beyond the last game? TODO change time for mainnet
-      //if (block.timestamp > (startingTime + 1 weeks)) {
       if (block.timestamp > (startingTime + gameLength)) {
           
           //If so, log winner. If the admin "wins", it's because no one else won.
@@ -132,8 +131,7 @@ contract CryptoHill {
   }
   
   function changeLeaderMessage(string newMessage){
-        //The leader gets to talk all kinds of shit.
-        //TODO remove this?
+        //The leader gets to talk all kinds of shit. If abuse, might remove.
         if(msg.sender == leader)
             leaderMessage = newMessage;
   }
@@ -158,7 +156,6 @@ contract CryptoHill {
       return startingTime + gameLength;
   }
 
-  //TODO remove this before releasing main net. immortal code
   function kill(){
       if (msg.sender == admin){
         GameOver("The Crypto Hill has ended.");
