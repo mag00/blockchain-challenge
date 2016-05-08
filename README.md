@@ -1,6 +1,6 @@
 # Blockchain Challenge
 
-Longform explanation at mag00.github.io/blockchain-challenge
+Longform explanation at [https://mag00.github.io/blockchain-challenge/](https://mag00.github.io/blockchain-challenge)
 
 ##Contents
 - `challenge.solc` contains the Ethereum contract
