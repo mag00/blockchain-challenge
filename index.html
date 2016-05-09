@@ -56,7 +56,16 @@
 <h2>
 <a id="how-to-play" class="anchor" href="#how-to-play" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How To Play</h2>
 
-<p>The contract accepts a string in function <code>Overthrow</code>. The string will be SHA3 hashed and <code>XOR</code>'d with the current <code>LeaderHash</code>. If the result is less than the <code>Difficulty</code>, your Ethereum address will be stored as the new leader, and the difficulty will equal that amount of effort. You'll then have access to the <code>Change Leader Message</code> function in the contract, as it is gated by the leader's address.</p>
+<ol>
+<li>Download the <a href="https://www.ethereum.org/">official Ethereum wallet</a>.</li>
+<li>Get a small amount of 'eth' into your wallet. Purchase it from Kraken or Gemini, ask a friend for a small amount, or google for a Ethereum Faucet.</li>
+<li>Click "Contracts"</li>
+<li>Click "Watch Contract"</li>
+<li>Name is "Blockchain Challenge", address is at the top of this page (0x0...), and JSON is in the "code" section of that link under "ABI".</li>
+</ol>
+
+<p>Once you're watching the contract, some functions will be available to you. 
+The contract accepts a string in function <code>Overthrow</code>. The string will be SHA3 hashed and <code>XOR</code>'d with the current <code>LeaderHash</code>. If the result is less than the <code>Difficulty</code>, your Ethereum address will be stored as the new leader, and the difficulty will equal that amount of effort. You'll then have access to the <code>Change Leader Message</code> function in the contract, as it is gated by the leader's address.</p>
 
 <h2>
 <a id="strategy" class="anchor" href="#strategy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Strategy</h2>
