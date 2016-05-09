@@ -1,4 +1,4 @@
-contract CryptoHill {
+contract BlockChainChallenge {
     
   address admin;
   address leader;
@@ -10,6 +10,7 @@ contract CryptoHill {
   uint gameLength;
   string leaderMessage;
   string defaultLeaderMessage;
+  mapping (address => uint) winners;
   
   event Begin(string log);
   event Leader(string log, address newLeader, bytes32 newHash);
@@ -18,7 +19,7 @@ contract CryptoHill {
   event NoWinner (string log);
   event WorldRecord (string log, bytes32 DifficultyRecord, address RecordHolder);
   
-  function CryptoHill(){ 
+  function BlockChainChallenge(){ 
       
     //Admin Backdoor
     admin = msg.sender;
@@ -117,6 +118,9 @@ contract CryptoHill {
         //Announce our new victor. Congratulations!    
         Leader("New leader! This is their address, and the new hash to collide.", leader, leaderHash);
         
+        //Add to historical Winners
+        winners[msg.sender]++;
+        
         //Keep track of how many new leaders we've had this week.
         fallenLeaders++;
         
@@ -143,7 +147,7 @@ contract CryptoHill {
   function Difficulty() constant returns (bytes32 XorMustBeLessThan){
       return difficulty;
   }
-  function LeaderHash() constant returns (bytes32 leadingHash){
+  function TargetHash() constant returns (bytes32 leadingHash){
       return leaderHash;
   }
   function LeaderMessage() constant returns (string MessageOfTheDay){
@@ -155,10 +159,13 @@ contract CryptoHill {
   function GameEnds() constant returns (uint EndingTime){
       return startingTime + gameLength;
   }
+  function getWins(address check) constant returns (uint wins){
+      return winners[check];
+  }
 
   function kill(){
       if (msg.sender == admin){
-        GameOver("The Crypto Hill has ended.");
+        GameOver("The challenge has ended.");
         selfdestruct(admin);
       }
   }
