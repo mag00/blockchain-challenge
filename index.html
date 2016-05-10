@@ -65,6 +65,8 @@
 <p>Once you're watching the contract, some functions will be available to you. 
 The contract accepts a string in function <code>Overthrow</code>. The string will be SHA3 hashed and <code>XOR</code>'d with the current <code>LeaderHash</code>. If the result is less than the <code>Difficulty</code>, your Ethereum address will be stored as the new leader, and the difficulty will equal that amount of effort. You'll then have access to the <code>Change Leader Message</code> function in the contract, as it is gated by the leader's address.</p>
 
+<p>The point of the game is to be the leader at the end of the week. You want to find a string that when XOR'd with the target hash, will be lower than the current difficulty. That makes you the leader and increases the difficulty equal to the computational effort you put forward, making it harder for your competition. If your competition submits a hash while you are computing a collision, you'll have to start over on the new target hash.</p> 
+
 <h2>
 <a id="strategy" class="anchor" href="#strategy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Strategy</h2>
 
